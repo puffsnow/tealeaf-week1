@@ -4,7 +4,7 @@
 
 require "pry"
 
-#Global variable: Here is some variable we can edit to set
+#Constant variable: Here is some variable we can edit to set
 #USED_DECK_COUNT: To prevent against card counting players, we use multi decks, and you can set how many decks you want to use.
 
 USED_DECK_COUNT = 3
@@ -52,7 +52,7 @@ end
 
 #cards_to_point:
 #This function is count how many points is the cards in players hand.
-#It will count the max possible number(If A can be 11, it will be.), but don't be busted if it can.
+#It will count the max possible number(If A can be 11, it will be.), but don't be busted if it can avoid.
 def cards_to_point cards
 	
 	point = 0
