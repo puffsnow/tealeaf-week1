@@ -1,7 +1,19 @@
 <p>This is for tealeaf first week assignment.</p>
 
 <p>
-It's first version. Here is some description about the blackjack.rb:<br />
+14/02/06 write some comment, and it can used multi decks now.
+</p>
+
+<p>
+Next step:
+<ol>
+	<li>don't just play once, player can play more times</li>
+	<li>maybe we can let player have chips?</li>
+</ol>
+</p>
+
+<p>
+14/02/05 It's first version. Here is some description about the blackjack.rb:<br />
 <ol>
 	<li>It support multiplayers, and it will remember all player's name</li>
 	<li>Players' name should not be conflict, or the program will shutdown</li>
@@ -18,12 +30,3 @@ It's first version. Here is some description about the blackjack.rb:<br />
 </ol>
 </p>
 
-<p>
-Next step:
-<ol>
-	<li>comment about the program</li>
-	<li>don't just play once, player can play more times</li>
-	<li>multi decks</li>
-	<li>maybe we can let player have chips?</li>
-</ol>
-</p>

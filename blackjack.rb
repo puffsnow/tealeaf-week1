@@ -1,47 +1,58 @@
-#This program simulate a blackjack game, user be player and computer be dealer.
+#This program simulate a blackjack game, users be players and computer be dealer.
+#Every card in the deck has an own number, club A is 0, club 2 is 1, diamond A is 13, spade K is 51 etc.
+#When we have to print the card, we have card_to_string function to tell user what card it is.
 
 require "pry"
 
+#Global variable: Here is some variable we can edit to set
+#USED_DECK_COUNT: To prevent against card counting players, we use multi decks, and you can set how many decks you want to use.
+
+USED_DECK_COUNT = 3
+
+#say:
+#The program simulate a dealer, and every message from this program will call this function.
 def say msg
-
-	puts("@Dealer: #{msg}")
+	puts "@Dealer: #{msg}"
 end
 
-def win_declare name
-	say "Great, #{name}! You win this game!"
+#result_declare:
+#The program will declare game result for every player. Message is depend on the result.
+def result_declare (name, result)
+	say "Great, #{name}! You win this game!" if result == "win"
+	say "Oops, sorry, #{name}. You lose this game." if result == "lose"
+	say "#{name}, we draw. :)" if result == "draw"
 end
 
-def lose_declare name
-	say "Oops, sorry, #{name}. You lose this game. "
-end
-
-def draw_declare name
-	say "#{name}, we draw :)"
-end
-
+#shuffle:
+#This function will return an array that simulate deck which has been shuffled.
 def shuffle
-
-	original_cards = Array.new(52) {|index| index}
 	shuffle_cards = []
-	i = 52
 
-	until original_cards.empty?
-		taking_num = rand(i)
-		shuffle_cards.push(original_cards[taking_num])
-		original_cards.delete_at(taking_num)
-		i = i - 1
+	USED_DECK_COUNT.times do |x|
+		i = 52
+		original_cards = Array.new(52) {|index| index}
+		until original_cards.empty?
+			taking_num = rand(i)
+			shuffle_cards.push(original_cards[taking_num])
+			original_cards.delete_at(taking_num)
+			i = i - 1
+		end
 	end
-
 	return shuffle_cards
 end
 
-def pick_card cards
-	taking_num = rand(cards.count)
-	return_value = cards[taking_num]
-	cards.delete_at(taking_num)
+#pick_card:
+#This function will pick a card from the deck in random and return the card number. Hmmm...so we have shuffled twice.
+def pick_card deck
+	taking_num = rand(deck.count)
+	return_value = deck[taking_num]
+	deck.delete_at(taking_num)
 	return return_value
 end
 
+#cards_to_point:
+#This function is count how many points is the cards in players hand.
+#It will count the max possible number(If A can be 11, it will be.), but don't be busted if it can.
 def cards_to_point cards
 	
 	point = 0
@@ -68,12 +79,18 @@ def cards_to_point cards
 	return point
 end
 
+#card_to_string:
+#Turn a number to string which is its real color and number.
+#From 0 to 51, it means club 1, club 2, club 3, ... spade K.
 def card_to_string card
 	colors = ["club", "diamond", "heart", "spade"]
 	numbers = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 	return colors[card / 13] + numbers[card % 13]
 end
 
+#cards_in_hand_to_string:
+#input: an array of number
+#output: a string which means which cards are they.
 def cards_in_hand_to_string cards
 	card_strings = []
 	cards.each do |card|
@@ -81,6 +98,17 @@ def cards_in_hand_to_string cards
 	end
 	return card_strings.join(", ")
 end
+
+
+#main program:
+#Here is the steps:
+#1. shuffle, then we have a deck
+#2. ask how many players, then ask their name. If any two of players name is conflict, the programe will warning and shut down.
+#3. Deal two cards to every user then to dealer.
+#4. Every player's turn, he/she should decide hit or stay. The turn will be end when he/she decide to stay, be busted or BLACKJACK.
+#5. When players finish, dealer play its turn. This turn will end when its point is bigger than 17.
+#6. Judge victory or defeat for every player, the shut down.
+
 
 deck = shuffle
 
@@ -174,19 +202,19 @@ players_name.each do |player_name|
 	player_point = cards_to_point players_cards[player_name]
 
 	if player_point > 21
-		lose_declare player_name
+		result_declare(player_name, "lose")
 	elsif player_point == 21
-		win_declare player_name
+		result_declare(player_name, "win")
 	elsif dealer_point > 21
-		win_declare player_name
+		result_declare(player_name, "win")
 	elsif dealer_point == 21
-		lose_declare player_name
+		result_declare(player_name, "lose")
 	elsif dealer_point > player_point
-		lose_declare player_name
+		result_declare(player_name, "lose")
 	elsif dealer_point < player_point
-		win_declare player_name
+		result_declare(player_name, "win")
 	else
-		draw_declare player_name
+		result_declare(player_name, "draw")
 	end
 
 end
