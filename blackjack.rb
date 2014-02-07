@@ -11,7 +11,7 @@ USED_DECK_COUNT = 3
 
 #say:
 #The program simulate a dealer, and every message from this program will call this function.
-def say msg
+def say(msg)
   puts "@Dealer: #{msg}"
 end
 
@@ -26,76 +26,55 @@ end
 
 #shuffle:
 #This function will return an array that simulate deck which has been shuffled.
-def shuffle
-  shuffle_cards = []
+def produce_new_deck
+  new_deck = []
 
   USED_DECK_COUNT.times do |x|
     i = 52
-    original_cards = Array.new(52) {|index| index}
-    until original_cards.empty?
-      taking_num = rand(i)
-      shuffle_cards.push(original_cards[taking_num])
-      original_cards.delete_at(taking_num)
-      i = i - 1
-    end
+    new_deck = new_deck + Array.new(52) {|index| index}
   end
-  return shuffle_cards
-end
-
-#pick_card:
-#This function will pick a card from the deck in random and return the card number. Hmmm...so we have shuffled twice.
-def pick_card deck
-  taking_num = rand(deck.count)
-  return_value = deck[taking_num]
-  deck.delete_at(taking_num)
-  return return_value
+  return new_deck
 end
 
 #cards_to_point:
 #This function is count how many points is the cards in players hand.
 #It will count the max possible number(If A can be 11, it will be.), but don't be busted if it can avoid.
-def cards_to_point cards
+def cards_to_score(cards)
   
-  point = 0
+  total = 0
   cards_num = []
 
   cards.each { |card| cards_num.push(card % 13) }
 
   cards_num.sort.reverse.each do |num|
-    if num >= 9
-      point = point + 10
-    elsif num > 0
-      point = point + num + 1
+    if num >= 9                           #9, 10, 11, 12 means 10, J, Q, K
+      total = total + 10
+    elsif num > 0                         #which means 2, 3, 4, 5, 6, 7, 8, 9
+      total = total + num + 1
     end
   end
 
   a_count = cards_num.count(0)
 
-  point  = point + a_count
+  total = total + a_count
 
   a_count.times do
-    point = point + 10 if point <= 11
+    total = total + 10 if total <= 11
   end
 
-  return point
-end
-
-#card_to_string:
-#Turn a number to string which is its real color and number.
-#From 0 to 51, it means club 1, club 2, club 3, ... spade K.
-def card_to_string card
-  colors = ["club", "diamond", "heart", "spade"]
-  numbers = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-  return colors[card / 13] + numbers[card % 13]
+  return total
 end
 
 #cards_in_hand_to_string:
 #input: an array of number
 #output: a string which means which cards are they.
-def cards_in_hand_to_string cards
+def cards_in_hand_to_string(cards)
+  suits = ["club", "diamond", "heart", "spade"]
+  numbers = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+
   card_strings = []
   cards.each do |card|
-    card_strings.push(card_to_string(card))
+    card_strings.push(suits[card / 13] + numbers[card % 13])
   end
   return card_strings.join(", ")
 end
@@ -111,7 +90,7 @@ end
 #6. Judge victory or defeat for every player, the shut down.
 
 
-deck = shuffle
+deck = produce_new_deck.shuffle!
 
 dealer_cards = []
 players_name = []
@@ -129,33 +108,30 @@ players_count.times do |x|
   if players_name.find_index(input_name)
     puts "Sorry, the name is repeated, please check and run this program one more time;)"
     exit
-  end
-  
+  end 
   players_name.push(input_name)
-  players_cards[input_name] = []
-  card = pick_card deck
-  players_cards[input_name].push(card)
-  card = pick_card deck
-  players_cards[input_name].push(card)
-
 end
 
-card = pick_card deck
-dealer_cards.push(card)
-card = pick_card deck
-dealer_cards.push(card)
+players_name.each do |player_name|
+  players_cards[player_name] = []
+  players_cards[player_name] << deck.pop
+  players_cards[player_name] << deck.pop
+end
+
+dealer_cards << deck.pop
+dealer_cards << deck.pop
 
 players_name.each do |player_name|
   say "Hello! " + player_name + "! It's your turn!"
   while true
-    player_point = cards_to_point players_cards[player_name]
+    player_score = cards_to_score players_cards[player_name]
     say "Your current cards in hand are: " + cards_in_hand_to_string(players_cards[player_name])
-    say "Your current score is: " + player_point.to_s
+    say "Your current score is: " + player_score.to_s
 
-    if player_point > 21
+    if player_score > 21
       say "Oh! No! You busted!" 
       break
-    elsif player_point == 21
+    elsif player_score == 21
       say "Blackjack! You play a nice game!"
       break
     end
@@ -169,8 +145,7 @@ players_name.each do |player_name|
       break
     end
 
-    card = pick_card deck
-    players_cards[player_name].push(card)
+    players_cards[player_name] << deck.pop
   end
 
 end
@@ -179,39 +154,38 @@ say "It's my turn."
 
 while true
   
-  card = pick_card deck
-  dealer_cards.push card
+  dealer_cards << deck.pop
 
-  dealer_point = cards_to_point dealer_cards
+  dealer_score = cards_to_score dealer_cards
   say "My current cards in hand are: " + cards_in_hand_to_string(dealer_cards)
-  say "My current score is: " + dealer_point.to_s
+  say "My current score is: " + dealer_score.to_s
 
-  if dealer_point > 21
+  if dealer_score > 21
     say "Oh! No! I busted!"
     break
-  elsif dealer_point == 21
+  elsif dealer_score == 21
     say "Oh! Sorry! BLACKJACK! I win!;)"
     break
-  elsif dealer_point > 17
+  elsif dealer_score > 17
     say "I should stay..."
     break
   end
 end
 
 players_name.each do |player_name|
-  player_point = cards_to_point players_cards[player_name]
+  player_score = cards_to_score players_cards[player_name]
 
-  if player_point > 21
+  if player_score > 21
     result_declare(player_name, "lose")
-  elsif player_point == 21
+  elsif player_score == 21
     result_declare(player_name, "win")
-  elsif dealer_point > 21
+  elsif dealer_score > 21
     result_declare(player_name, "win")
-  elsif dealer_point == 21
+  elsif dealer_score == 21
     result_declare(player_name, "lose")
-  elsif dealer_point > player_point
+  elsif dealer_score > player_score
     result_declare(player_name, "lose")
-  elsif dealer_point < player_point
+  elsif dealer_score < player_score
     result_declare(player_name, "win")
   else
     result_declare(player_name, "draw")
